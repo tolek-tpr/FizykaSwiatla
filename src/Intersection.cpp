@@ -5,7 +5,15 @@
 
 #include <utility>
 
-Intersection::Intersection(std::string mac, const uint8_t id) : id(id), phaseStarted(Clock::now()), mac(std::move(mac)) {
+Intersection::Intersection(std::string mac, const uint32_t offset) : offset(offset), phaseStarted(Clock::now()), mac(std::move(mac)) {
+    auto remaining = std::chrono::milliseconds(-offset);
+
+    while (remaining >= getDuration()) {
+        remaining -= getDuration();
+        transition();
+    }
+
+    phaseStarted -= remaining;
     currentState = calculateState();
 }
 
@@ -49,6 +57,10 @@ void Intersection::transition() {
             break;
 
         case Phase::AllRedBeforeCars:
+            phase = Phase::CarsRedYellow;
+            break;
+
+        case Phase::CarsRedYellow:
             phase = Phase::CarsGreen;
             break;
     }
@@ -56,12 +68,13 @@ void Intersection::transition() {
 
 std::chrono::milliseconds Intersection::getDuration() const {
     switch (phase) {
-        case Phase::CarsGreen:                 return std::chrono::milliseconds(15000);
-        case Phase::CarsYellow:                return std::chrono::milliseconds(3000);
-        case Phase::AllRedBeforePedestrians:   return std::chrono::milliseconds(1000);
-        case Phase::PedestriansGreen:          return std::chrono::milliseconds(8000);
-        case Phase::PedestriansFlashing:       return std::chrono::milliseconds(3000);
-        case Phase::AllRedBeforeCars:          return std::chrono::milliseconds(1000);
+        case Phase::CarsGreen:                 return std::chrono::milliseconds(10000);
+        case Phase::CarsYellow:                return std::chrono::milliseconds(5000);
+        case Phase::AllRedBeforePedestrians:   return std::chrono::milliseconds(5000);
+        case Phase::PedestriansGreen:          return std::chrono::milliseconds(10000);
+        case Phase::PedestriansFlashing:       return std::chrono::milliseconds(6000);
+        case Phase::AllRedBeforeCars:          return std::chrono::milliseconds(5000);
+        case Phase::CarsRedYellow:             return std::chrono::milliseconds(5000);
     }
 
     return std::chrono::milliseconds(1000);
@@ -98,6 +111,9 @@ Intersection::State Intersection::calculateState() const {
 
         case Phase::AllRedBeforeCars:
             return {Color::Red, Color::Red, Color::Red};
+
+        case Phase::CarsRedYellow:
+            return {Color::Yellow, Color::Red, Color::Red};
     }
 
     return {Color::Red, Color::Red, Color::Red};
@@ -109,10 +125,6 @@ Intersection::State Intersection::getState() const {
 
 Intersection::Phase Intersection::getPhase() const {
     return phase;
-}
-
-uint8_t Intersection::getId() const {
-    return id;
 }
 
 std::string Intersection::getMac() const {

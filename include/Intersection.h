@@ -14,10 +14,10 @@ public:
     using Clock = std::chrono::steady_clock;
 
     enum class Color : int8_t {
-        Off,
-        Red,
-        Yellow,
-        Green
+        Off = 4,
+        Red = 2,
+        Yellow = 3,
+        Green = 1
     };
 
     enum class Phase {
@@ -26,7 +26,8 @@ public:
         AllRedBeforePedestrians,
         PedestriansGreen,
         PedestriansFlashing,
-        AllRedBeforeCars
+        AllRedBeforeCars,
+        CarsRedYellow
     };
 
     struct State {
@@ -37,7 +38,7 @@ public:
         bool operator==(const State&) const = default;
     };
 
-    explicit Intersection(std::string mac, uint8_t id);
+    explicit Intersection(std::string mac, uint32_t offset);
 
     // Advances the simulation.
     // Returns true if the output state changed.
@@ -46,12 +47,10 @@ public:
     State getState() const;
     Phase getPhase() const;
 
-    uint8_t getId() const;
-
     std::string getMac() const;
 
 private:
-    uint8_t id;
+    uint32_t offset;
 
     Phase phase = Phase::CarsGreen;
 

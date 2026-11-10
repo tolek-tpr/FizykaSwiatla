@@ -12,7 +12,7 @@ static void packet_reset(SerialPort *port, const Intersection *intersection) {
     std::string data;
     data.append(intersection->getMac());
 
-    data.append("00");
+    data.append("00\n");
 
     for (int i = 0; i < 3; i++) {
         data[17] = static_cast<int8_t>('1' + i);
@@ -22,7 +22,8 @@ static void packet_reset(SerialPort *port, const Intersection *intersection) {
 }
 
 static void packet_send(SerialPort *port, const Intersection *intersection) {
-    packet_reset(port, intersection);
+    if (intersection->getPhase() != Intersection::Phase::CarsRedYellow)
+        packet_reset(port, intersection);
 
     std::string data;
     data.append(intersection->getMac());
@@ -31,6 +32,7 @@ static void packet_send(SerialPort *port, const Intersection *intersection) {
 
     data += '1';
     data += static_cast<int8_t>('0' + static_cast<int8_t>(state.ped1));
+    data += '\n';
 
     port->write(data);
 
@@ -41,6 +43,8 @@ static void packet_send(SerialPort *port, const Intersection *intersection) {
 
     data[17] = '3';
     data[18] = static_cast<int8_t>('0' + static_cast<int8_t> (state.car));
+
+    port->write(data);
 }
 
 #endif //TRAFFICCONTROLLER_PACKET_H

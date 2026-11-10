@@ -20,7 +20,7 @@ public:
         return port != nullptr;
     }
 
-    std::string readAvailable();
+    std::string readAvailable() const;
 
     // Returns complete newline-terminated messages.
     std::vector<std::string> readMessages();

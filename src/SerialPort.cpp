@@ -34,10 +34,9 @@ SerialPort::~SerialPort() {
 
 void SerialPort::write(const std::string &data) const {
     sp_nonblocking_write(port, data.c_str(), data.length());
-    std::cout << "Sending: " << data << std::endl;
 }
 
-std::string SerialPort::readAvailable() {
+std::string SerialPort::readAvailable() const {
     if (!port)
         return {};
 

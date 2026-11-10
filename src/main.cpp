@@ -2,6 +2,7 @@
 #include <chrono>
 #include <Packet.h>
 #include <thread>
+#include <fstream>
 #include <iostream>
 
 #include "Intersection.h"
@@ -18,27 +19,41 @@ SerialPort *port;
 
 int main() {
     port = new SerialPort(PORT);
+    std::vector<Intersection*> intersections;
 
-    if (!port->open()) {
-        return 1;
+    while (!port->open()) {
+        std::this_thread::sleep_for(10ms);
+        port = new SerialPort(PORT);
     }
 
-    Intersection *is = new Intersection("10:00:3B:DE:5E:68", 0);
-    packet_send(port, is);
+    std::ifstream ifs("../data/kostki.txt");
+    std::string line;
+    while (std::getline(ifs, line)) {
+        std::string mac = line.substr(0, line.find('|'));
+        std::string offset = line.substr(line.find('|') + 1);
+        intersections.push_back(new Intersection(mac, std::stoi(offset)));
+    }
+
+    for (auto& is : intersections) {
+        packet_send(port, is);
+        std::cout << "Resetting intersection: " << is->getMac() << std::endl;
+        std::this_thread::sleep_for(3ms);
+    }
+
+    // return 0;
 
     while (true) {
-
         for (const auto& message : port->readMessages()) {
-            std::cout << "Received: " << message << '\n';
+            //std::cout << "Received: " << message << '\n';
 
             // Parse JSON or your packet format here.
         }
-        //for (auto& intersection : intersections) {
-            if (is->update()) {
-                packet_reset(port, is);
-                packet_send(port, is);
-            }
-        //}
+        for (auto& is : intersections) {
+             if (is->update()) {
+                 packet_send(port, is);
+                 std::this_thread::sleep_for(3ms);
+             }
+        }
 
         std::this_thread::sleep_for(2ms);
     }
