@@ -6,6 +6,20 @@
 #include <iostream>
 #include <libserialport.h>
 
+#include <iomanip>
+#include <string>
+
+void printHex(const std::string& str) {
+    for (unsigned char c : str) {
+        std::cout << std::hex
+                  << std::setw(2)
+                  << std::setfill('0')
+                  << static_cast<int>(c) << ' ';
+    }
+
+    std::cout << std::dec << '\n';
+}
+
 SerialPort::SerialPort(const char* port_name) {
     if (sp_get_port_by_name(port_name, &port) != SP_OK) {
         std::cerr << "Failed to get serial port by name\n";
@@ -17,6 +31,7 @@ SerialPort::SerialPort(const char* port_name) {
         std::cerr << "Failed to open serial port\n";
         std::cerr << status << "\n";
         sp_free_port(port);
+        port = nullptr;
         return;
     }
 
@@ -33,7 +48,22 @@ SerialPort::~SerialPort() {
 }
 
 void SerialPort::write(const std::string &data) const {
-    sp_nonblocking_write(port, data.c_str(), data.length());
+    //printHex(data);
+    //sp_nonblocking_write(port, data.c_str(), data.length());
+    int result = sp_blocking_write(
+        port,
+        data.data(),
+        data.size(),
+        1000
+    );
+
+    if (result < 0) {
+        std::cerr << "Serial write failed: " << result << '\n';
+    }
+    else if (result != data.size()) {
+        std::cerr << "Incomplete write: "
+                  << result << "/" << data.size() << " bytes\n";
+    }
 }
 
 std::string SerialPort::readAvailable() const {

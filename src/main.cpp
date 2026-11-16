@@ -18,6 +18,18 @@ constexpr const char* PORT = "/dev/ttyACM0";
 SerialPort *port;
 
 int main() {
+    // std::string PORT;
+    //
+    // std::cin >> PORT;
+
+    // port = new SerialPort(PORT.c_str());
+    // std::vector<Intersection*> intersections;
+    //
+    // while (!port->open()) {
+    //     std::this_thread::sleep_for(10ms);
+    //     port = new SerialPort(PORT.c_str());
+    // }
+
     port = new SerialPort(PORT);
     std::vector<Intersection*> intersections;
 
@@ -40,14 +52,12 @@ int main() {
         std::this_thread::sleep_for(3ms);
     }
 
-    // return 0;
-
     while (true) {
-        for (const auto& message : port->readMessages()) {
-            //std::cout << "Received: " << message << '\n';
-
-            // Parse JSON or your packet format here.
-        }
+        // for (const auto& message : port->readMessages()) {
+        //     std::cout << "Received: " << message << '\n';
+        //
+        //     // Parse JSON or your packet format here.
+        // }
         for (auto& is : intersections) {
              if (is->update()) {
                  packet_send(port, is);
