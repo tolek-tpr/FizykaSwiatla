@@ -69,12 +69,12 @@ void Intersection::transition() {
 std::chrono::milliseconds Intersection::getDuration() const {
     switch (phase) {
         case Phase::CarsGreen:                 return std::chrono::milliseconds(10000);
-        case Phase::CarsYellow:                return std::chrono::milliseconds(5000);
-        case Phase::AllRedBeforePedestrians:   return std::chrono::milliseconds(5000);
-        case Phase::PedestriansGreen:          return std::chrono::milliseconds(10000);
-        case Phase::PedestriansFlashing:       return std::chrono::milliseconds(6000);
-        case Phase::AllRedBeforeCars:          return std::chrono::milliseconds(5000);
-        case Phase::CarsRedYellow:             return std::chrono::milliseconds(5000);
+        case Phase::CarsYellow:                return std::chrono::milliseconds(3000);
+        case Phase::AllRedBeforePedestrians:   return std::chrono::milliseconds(3000);
+        case Phase::PedestriansGreen:          return std::chrono::milliseconds(8000);
+        case Phase::PedestriansFlashing:       return std::chrono::milliseconds(5000);
+        case Phase::AllRedBeforeCars:          return std::chrono::milliseconds(3000);
+        case Phase::CarsRedYellow:             return std::chrono::milliseconds(2000);
     }
 
     return std::chrono::milliseconds(1000);
