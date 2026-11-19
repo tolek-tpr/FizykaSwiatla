@@ -8,6 +8,9 @@
 
 #include <iomanip>
 #include <string>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 void printHex(const std::string& str) {
     for (unsigned char c : str) {
@@ -56,6 +59,7 @@ void SerialPort::write(const std::string &data) const {
         data.size(),
         1000
     );
+    //std::this_thread::sleep_for(1ms);
 
     if (result < 0) {
         std::cerr << "Serial write failed: " << result << '\n';
